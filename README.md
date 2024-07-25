@@ -1,56 +1,11 @@
-🛠 Tools and Technologies Used:
-AWS EC2: [Amazon Elastic Compute Cloud] service to launch virtual machines in the Amazon cloud.
-MobaXterm: A terminal application for remote connections.
-AWS IAM: [Identity and Access Management] service to create users and roles to control access to AWS resources.
-AWS CLI: [Command Line Interface] to interact with AWS services from the command line.
-eksctl: A command-line tool to create and manage EKS clusters.
-CI/CD tools:
-Jenkins: An open-source automation server for building, testing, and deploying applications.
-Docker: A platform for developing, deploying, and running applications in containers.
-Kubernetes CLI (kubectl): A command-line tool to interact with Kubernetes clusters.
-Multibranch Scan Webhook Trigger plugin for Jenkins: A plugin to trigger Jenkins pipelines based on events in Git repositories.
-What I learned from this project:
-
-Infrastructure Provisioning:
-
-Learned to set up infrastructure on AWS EC2 for a Kubernetes cluster.
-Gained experience configuring security groups for secure deployments.
-EKS Cluster Management:
-
-Developed skills in creating and managing EKS clusters using eksctl.
-Understood configuring worker node configurations for optimal performance.
-Learned to integrate IAM OIDC providers for secure access within the cluster.
-Containerization with Docker:
-
-Gained hands-on experience with containerizing microservices for portability (if applicable).
-Learned best practices for building and managing Docker images (if applicable).
-CI/CD Pipeline with Jenkins:
-
-Mastered setting up and configuring Jenkins for automating deployments.
-Learned to leverage Jenkins plugins for Docker, Kubernetes, and webhook triggers.
-Gained experience in creating Jenkins pipelines that interact with Kubernetes clusters using kubectl commands.
-CI/CD Best Practices:
-
-Understood the benefits of continuous integration and continuous delivery for efficient and reliable deployments.
-Learned how automated testing within the pipeline ensures code quality before deployment.
-Microservices Architecture (if applicable):
-
-Gained a deeper understanding of the microservices architecture and its advantages.
-Learned how to deploy and manage individual microservices within a larger application.
-Kubernetes Concepts:
-
-Developed an understanding of core Kubernetes concepts like deployments, pods, namespaces, and services.
-Gained experience in managing containerized workloads and services within an EKS cluster.
-Problem-Solving:
-
-Enhanced your problem-solving skills by troubleshooting configurations, deployments, and potential issues in the CI/CD pipeline.
-Additionally, depending on the specific focus of the project, I might have learned more about:
+## CICD Pipeline DevOps Project with Microservices
 
 Microservices Architecture: If the project involved deploying microservices, I might have gained a deeper understanding of this architectural style and its benefits.
 Kubernetes Concepts: Working with EKS likely involved exposure to core Kubernetes concepts like deployments, pods, namespaces, and services.
 Now Let’s begin
 
-Step -1
+### Step -1
+
 To commence our project, we must first provision an Amazon Elastic Compute Cloud (Amazon EC2) instance, a fundamental component within our infrastructure framework. This instance will serve as the foundational computing resource upon which we’ll deploy and manage our microservices architecture.
 
 Here’s a step-by-step guide to provisioning an EC2 instance:
@@ -59,13 +14,17 @@ Here’s a step-by-step guide to provisioning an EC2 instance:
 
 Go to the AWS Management Console and navigate to the EC2 service.
 Click “Launch Instance”.
+
 2. Choose an AMI:
 
 Search for and select “Ubuntu Server 20.04 LTS”.
 
+![image](https://github.com/user-attachments/assets/2a0e13b0-d5fa-4f3f-ab68-0c923a62cc98)
+
 3. Configure Instance Type:
 
 Under “Instance Type”, choose “t2.large (2 CPUs and 8 GiB memory)”.
+
 4. Configure Key Pair:
 
 Choose “Create a new key pair” and provide a name (e.g., “ServiceKeyPair”).
@@ -73,110 +32,149 @@ Download the key pair file (.pem) and keep it securely. This is essential for SS
 5. Configure Storage:
 
 Under “Storage”, select “General Purpose SSD (gp2)” and choose 25 GB for the root volume.
+
 6. Add Security Group Rules:
 
 Inbound Rules: Open the following ports in the security group associated with the instance:
-TCP 22: SSH (For secure remote access)
-TCP 25: SMTP (For email sending)
-TCP 80: HTTP (For web traffic)
-TCP 443: HTTPS (For secure web traffic)
-TCP 465: SMTPS (For secure email sending)
-TCP 6443: Custom TCP (For custom application access)
-TCP 27017: Custom TCP (For custom application access)
-TCP 30000–32767: Custom TCP Range (For custom application access)
+
+* TCP 22: SSH (For secure remote access)
+* TCP 25: SMTP (For email sending)
+* TCP 80: HTTP (For web traffic)
+* TCP 443: HTTPS (For secure web traffic)
+* TCP 465: SMTPS (For secure email sending)
+* TCP 6443: Custom TCP (For custom application access)
+* TCP 27017: Custom TCP (For custom application access)
+* TCP 30000–32767: Custom TCP Range (For custom application access)
+
+![image](https://github.com/user-attachments/assets/319493e9-db62-48d6-b824-c9d4e30b3980)
 
 7. Review and Launch:
 
 Review your configuration and ensure all details are correct.
-Click “Launch Instances”.
-Step -2
-I need to connect my EC2 instance from my PC. Let’s proceed by connecting our EC2 instance with Mobaxterm.
 
-Prerequisites:
+Click “Launch Instances”.
+
+### Step -2
+
+We need to connect my EC2 instance from our local machine. Let’s proceed by connecting our EC2 instance with MobaXterm.
+
+#### Prerequisites:
 
 Public IP Address: Ensure you have the public IP address of your EC2 instance readily available. You can find it in the AWS Management Console under the EC2 service, in the “Instances” section.
-MobaXterm Installation: Download and install MobaXterm from their official website: https://mobaxterm.mobatek.net/.
-Steps to Connect:
 
-Open MobaXterm: Launch the MobaXterm application.
-Create a New SSH Session:
-Click on the “Session” button in the top-left corner.
-In the “Session settings” dialog, select “SSH” as the protocol.
+MobaXterm Installation: Download and install MobXterm from their [official website](https://mobaxterm.mobatek.net/).
+
+#### Steps to Connect:
+
+1. Open MobaXterm: Launch the MobaXterm application.
+   
+2. Create a New SSH Session:
+   
+   * Click on the “Session” button in the top-left corner.
+   * In the “Session settings” dialog, select “SSH” as the protocol.
+     
 3. Enter Connection Details:
 
-In the “Remote host” field, paste the public IP address of your EC2 instance.
-In the “Specify username” field, enter the username you used during EC2 instance creation. For Ubuntu 20.04 LTS, it’s usually “ubuntu”.
+   * In the “Remote host” field, paste the public IP address of your EC2 instance.
+   * In the “Specify username” field, enter the username you used during EC2 instance creation. For Ubuntu 20.04 LTS, it’s usually “ubuntu”.
+
 4. Authenticate with Key Pair:
 
-Click the “SSH” tab in the session settings.
-Under “Authentication,” choose “Private key file.”
-Browse and select the downloaded private key file (.pem) associated with your EC2 instance key pair.
+   * Click the “SSH” tab in the session settings.
+   *Under “Authentication,” choose “Private key file.”
+   * Browse and select the downloaded private key file (.pem) associated with your EC2 instance key pair.
+
 5. Connect
 
-Click “OK” in the session settings dialog.
-If your key pair is encrypted, you’ll be prompted for the passphrase. Enter it correctly.
-If successful, you’ll be connected to your EC2 instance terminal within MobaXterm.
+   * Click “OK” in the session settings dialog.
+   * If your key pair is encrypted, you’ll be prompted for the passphrase. Enter it correctly.
+   * If successful, you’ll be connected to your EC2 instance terminal within MobaXterm.
+
 Additional Notes:
 
 Make sure the security group associated with your EC2 instance has the SSH port (TCP 22) open with your specific IP address as a source for secure access.
-MobaXterm offers various features for remote management, including file transfer, terminal emulation, and X11 forwarding.
+
 1. Terminal Window:
 
 Open the terminal window within MobaXterm. This provides the interface for entering commands.
+
 2. Entering the Command:
 
-Type the following command exactly:
+```
 sudo apt update
-Press Enter to execute the command.
-Step — 3
+```
+
+### Step —3
+
 we need to create an IAM user in the AWS Identity and Access Management (IAM) console.
 
-Creating an IAM User:
+#### Creating an IAM User:
 
-Go to the AWS Management Console and navigate to the IAM service.
-In the navigation pane, select “Users” and then click “Add user”.
-Enter a desired username for your new user.
-Choose “Programmatic access” for access method (unless you need console access).
-Click “Next: Permissions”.
-Attaching Managed Policies:
+1. Go to the AWS Management Console and navigate to the IAM service.
+2. In the navigation pane, select “Users” and then click “Add user”.
+3. Enter a desired username for your new user.
+4. Choose “Programmatic access” for access method (unless you need console access).
+5. Click “Next: Permissions”.
+   
+#### Attaching Managed Policies:
 
-In the “Attach existing policies” section, search for and select the following managed policies:
-AmazonEC2FullAccess
-AmazonEKS_CNI_Policy
-AmazonEKSClusterPolicy
-AmazonEKSWorkerNodePolicy
-AWSCloudFormationFullAccess
-IAMFullAccess
+1. In the “Attach existing policies” section, search for and select the following managed policies:
 
-Click “Next: Tags”. (Optional: Add tags for organization purposes)
-Click “Next: Review”.
-Review the user details and attached policies.
-Click “Create user”.
-Generating Access Keys:
+* AmazonEC2FullAccess
+* AmazonEKS_CNI_Policy
+* AmazonEKSClusterPolicy
+* AmazonEKSWorkerNodePolicy
+* AWSCloudFormationFullAccess
+* IAMFullAccess
 
-In the IAM console, select the newly created user.
-Click on the “Security credentials” tab.
-Click “Create access key”.
-Choose “Other” and click “Next”. (Optional: You can set a description for the key)
-You’ll see the Access key ID and Secret access key displayed on the screen.
+![image](https://github.com/user-attachments/assets/8e61952a-c973-450d-9efb-d0f52a3583fe)
+
+1.1. Click “Next: Tags”. (Optional: Add tags for organization purposes)
+1.2. Click “Next: Review”.
+1.3. Review the user details and attached policies.
+1.4. Click “Create user”.
+
+#### Generating Access Keys:
+
+1. In the IAM console, select the newly created user.
+2. Click on the “Security credentials” tab.
+3. Click “Create access key”.
+4. Choose “Other” and click “Next”. (Optional: You can set a description for the key)
+5. You’ll see the Access key ID and Secret access key displayed on the screen.
+
 Important: Download the access key information as a CSV file. This is crucial as you won’t be able to view the secret access key again after this step.
-Step -4
+
+### Step -4
+
 We will proceed by installing three command-line interfaces (CLIs):
 
-AWS CLI: This CLI facilitates connection to our AWS account, enabling seamless interaction with various AWS services.
-kubectl: This CLI connects to Kubernetes, empowering us to manage containerized applications and resources within Kubernetes clusters.
-EKS ctl: This CLI tool assists in creating and managing Amazon EKS clusters, streamlining the process of orchestrating containerized applications on AWS.”
+* AWS CLI: This CLI facilitates connection to our AWS account, enabling seamless interaction with various AWS services.
+
+* kubectl: This CLI connects to Kubernetes, empowering us to manage containerized applications and resources within Kubernetes clusters.
+
+* EKS ctl: This CLI tool assists in creating and managing Amazon EKS clusters, streamlining the process of orchestrating containerized applications on AWS.”
+
 1. Create a Directory for Scripts:
 
 Open a terminal window in MobaXterm connected to your EC2 instance.
+
 Run the following command to create a directory named “scripts”:
+
+```
 mkdir scripts
+```
+
 2. Change Directory:
 
 Navigate to the newly created directory:
-cd scripts/
-Inside the editor, paste the following commands:
 
+```
+cd scripts/
+```
+
+Create a shell file ```terminals.sh``` and paste the following commands:
+
+```
 # Install AWS CLI
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 sudo apt install -y unzip
@@ -193,53 +191,82 @@ kubectl version --short --client
 curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
 sudo mv /tmp/eksctl /usr/local/bin
 eksctl version
-Save and exit the editor by typing :wq
+```
+
+Save and exit the editor by typing ```:wq```
+
 Make Script Executable: Make the script executable by running:
-sudo chmod +x 1.sh
+
+```
+sudo chmod +x terminals.sh
+```
+
 Execute Script: Execute the script by running:
-./1.sh
+
+```
+./terminals.sh
+```
+
+![image](https://github.com/user-attachments/assets/44309448-82bd-49bc-8641-0d8a76cd3fb8)
 
 Configure AWS CLI:
 
 After successful installation, run the following command to configure the AWS CLI with your access key and secret access key obtained from the IAM user you created:
+
+```
 aws configure
+```
+
 Follow the prompts to enter your access key ID, secret access key, default region, and default output format.
-Step — 5
+
+
+### Step — 5
+
 Now we create the EKS cluster But Before creating an Amazon Elastic Kubernetes Service (Amazon EKS) cluster, let’s understand what an EKS cluster is:
 
 Amazon EKS (Elastic Kubernetes Service) is a managed Kubernetes service by AWS. It simplifies deploying, managing, and scaling containerized applications on AWS infrastructure. An EKS cluster comprises a managed Kubernetes control plane and worker nodes. It integrates with AWS services for networking, IAM, and logging, providing developers with a reliable and scalable Kubernetes environment.
 
 Now that we have the necessary tools installed (AWS CLI, kubectl, and eksctl), let’s proceed with creating the EKS cluster. We’ll use the eksctl command to automate this process:
+
+```
 eksctl create cluster --name=EKS-1 \
            --region=ap-south-1 \
            --zones=ap-south-1a,ap-south-1b \
            --without-nodegroup
-let's breakdown this command
-eksctl create cluster: This initiates the creation of a new EKS cluster.
+```
 
---name=EKS-1: This assigns the name "EKS-1" to our cluster.
+Let's breakdown this command
 
---region=ap-south-1: This specifies the region where we want to create the cluster (Asia Pacific South (Mumbai) in this case).
+```eksctl create cluster``` : This initiates the creation of a new EKS cluster.
 
---zones=ap-south-1a,ap-south-1b: This distributes the cluster resources across two availability zones for redundancy.
+```--name=EKS-1``` : This assigns the name "EKS-1" to our cluster.
 
---without-nodegroup: This indicates that we don't want eksctl to create a managed node group automatically. We'll manage the worker nodes ourselves later.
+```--region=ap-south-1``` : This specifies the region where we want to create the cluster (Asia Pacific South (Mumbai) in this case).
+
+```--zones=ap-south-1a,ap-south-1b``` : This distributes the cluster resources across two availability zones for redundancy.
+
+```--without-nodegroup``` : This indicates that we don't want eksctl to create a managed node group automatically. We'll manage the worker nodes ourselves later.
 
 Running this command will initiate the EKS cluster creation process. It typically takes around 15 minutes as various AWS resources are provisioned. eksctl will also configure your local kubectl configuration to access the newly created cluster automatically.
 
 Next, we need to Run this Command,
+
+```
 eksctl utils associate-iam-oidc-provider \
     --region ap-south-1 \
     --cluster EKS-1 \
     --approve
+```
+
 This is like setting up a secure gateway for your cluster components to access AWS services. Think of it as giving your cluster a special ID card that allows it to request specific permissions from IAM, ensuring everything stays secure and controlled.”
 
-“We can achieve this with the eksctl utils associate-iam-oidc-provider command. This automatically handles the association process, creating an IAM OIDC provider if needed and setting up the necessary trust relationships. It's like taking care of all the technical details behind the scenes."
+We can achieve this with the ```eksctl utils associate-iam-oidc-provider``` command. This automatically handles the association process, creating an IAM OIDC provider if needed and setting up the necessary trust relationships.
 
-“By doing this, you’ll enable your cluster pods to securely access AWS services without needing individual credentials. It’s a crucial step for ensuring a secure and well-managed EKS environment.”
+By doing this, you’ll enable your cluster pods to securely access AWS services acting like an OAuth provider without needing individual credentials. It’s a crucial step for ensuring a secure and well-managed EKS environment.
 
 Now the cluster is ready, we need to provide an IAM OIDC (OpenID Connect) provider.
 
+```
 eksctl create nodegroup --cluster=EKS-1 \
                        --region=ap-south-1 \
                        --name=node2 \
@@ -256,58 +283,69 @@ eksctl create nodegroup --cluster=EKS-1 \
                        --full-ecr-access \
                        --appmesh-access \
                        --alb-ingress-access
-let’s breakdown this command
-This command, eksctl create nodegroup, is like building a team of worker bees for your EKS cluster.
+```
 
-Creating a Managed Node Group:
+Let’s breakdown this command.
 
-eksctl create nodegroup: This part tells eksctl to create a new node group, which is essentially a collection of EC2 instances that will serve as worker nodes for your cluster.
+#### Creating a Managed Node Group:
 
---cluster=EKS-1: This specifies that the node group should be associated with your existing EKS cluster named "EKS-1".
+```eksctl create nodegroup``` : This part tells eksctl to create a new node group, which is essentially a collection of EC2 instances that will serve as worker nodes for your cluster.
 
---region=ap-south-1: This ensures the node group is created in the same region as your cluster (Asia Pacific South (Mumbai) in this case).
+```--cluster=EKS-1``` : This specifies that the node group should be associated with your existing EKS cluster named "EKS-1".
 
-Configuring the Node Group:
+```--region=ap-south-1``` : This ensures the node group is created in the same region as your cluster (Asia Pacific South (Mumbai) in this case).
 
---name=node2: This gives your node group a name, "node2", for easy identification.
+#### Configuring the Node Group:
 
---node-type=t3.medium: This defines the type of EC2 instances to use for the worker nodes. Here, they'll be t3.medium instances.
+```--name=node2``` : This gives your node group a name, "node2", for easy identification.
 
---nodes=3: This specifies the initial number of worker nodes to create, which is 3.
+```--node-type=t3.medium``` : This defines the type of EC2 instances to use for the worker nodes. Here, they'll be t3.medium instances.
 
---nodes-min=2: This sets the minimum number of nodes the group should always maintain, ensuring at least 2 are always available.
+```--nodes=3``` : This specifies the initial number of worker nodes to create, which is 3.
 
---nodes-max=4: This defines the maximum number of nodes the group can scale up to, allowing for flexibility based on workload demands (up to 4).
+```--nodes-min=2``` : This sets the minimum number of nodes the group should always maintain, ensuring at least 2 are always available.
 
---node-volume-size=20: This allocates 20 GiB of storage space for each worker node.
+```--nodes-max=4``` : This defines the maximum number of nodes the group can scale up to, allowing for flexibility based on workload demands (up to 4).
 
-Additional Settings:
+```--node-volume-size=20``` : This allocates 20 GiB of storage space for each worker node.
 
---ssh-access: This enables SSH access to the worker nodes using the specified public key (DevOps in this case).
+#### Additional Settings:
 
---managed: This indicates you want a managed node group, meaning AWS automatically manages scaling and updates for the worker nodes.
+```--ssh-access``` : This enables SSH access to the worker nodes using the specified public key (DevOps in this case).
 
---asg-access: This grants access to the Auto Scaling group managing the worker nodes.
+```--managed``` : The node group will be a managed node group, meaning AWS will handle the lifecycle of the nodes, including updates and terminations.
 
---external-dns-access: This enables automatic DNS record creation for your worker nodes.
+```--asg-access``` : This grants access to the Auto Scaling group managing the worker nodes.
 
---full-ecr-access: This grants your node group full access to your Amazon Elastic Container Registry (ECR) for container image deployment.
+```--external-dns-access```: This enables automatic DNS record creation for your worker nodes.
 
---appmesh-access: This grants access to AWS App Mesh for service mesh management within your cluster.
+```--full-ecr-access```: This grants your node group full access to your Amazon Elastic Container Registry (ECR) for container image deployment.
 
---alb-ingress-access: This allows using Application Load Balancers for ingress traffic to your workloads.
+```--appmesh-access``` : This grants access to AWS App Mesh for service mesh management within your cluster.
+
+```--alb-ingress-access``` : This allows using Application Load Balancers for ingress traffic to your workloads.
+
+![image](https://github.com/user-attachments/assets/d6f8b4e0-01f9-427b-8f48-dd552a7e54ab)
 
 
-Now we need to install “java”.
+Now we need to install “java” in our EC2 instance.
 
+```
 sudo apt install openjdk-17-jre-headless
+```
 
-Step — 6
+![image](https://github.com/user-attachments/assets/0a8469e6-2c5d-4b2e-abc0-40aa605ba9bd)
+
+
+### Step — 6
+
 • Let’s walk through installing Jenkins on your EC2 instance:
-Installing Jenkins with a Script:
 
-Creating the Script: We’ll create a script named “olo.sh” that automates the installation. Imagine this script as a recipe for setting up Jenkins
-Editing the Script: Open a text editor on your EC2 instance and paste the following commands into the “olo.sh” file:
+1. Creating the Script: We’ll create a script named “jenkins.sh” that automates the installation. Imagine this script as a recipe for setting up Jenkins
+
+2. Editing the Script: Open a text editor on your EC2 instance and paste the following commands into the “jenkins.sh” file:
+
+```
 sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
   https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
 echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
@@ -315,51 +353,81 @@ echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
   /etc/apt/sources.list.d/jenkins.list > /dev/null
 sudo apt-get update
 sudo apt-get install jenkins
+```
+
 Making the Script Executable:
 
 Once you’ve saved the script, run this command to grant it permission to be executed:
-sudo chmod +x olo.sh
+
+```
+sudo chmod +x jenkins.sh
+```
 This is like giving the script the green light to run its commands.
 Running the Script:
 
 Now, simply execute the script by typing:
-./olo.sh
+
+```
+./jenkins.sh
+```
+
 Now Find your EC2 instance’s public IP in the AWS Management Console.
 
 In a web browser, type the public IP followed by “:8080” (e.g., http://123.456.78.90:8080).
+
 On the Jenkins setup page, “install suggested plugins” for extra features.
+
+![image](https://github.com/user-attachments/assets/e4351741-6155-4862-9be8-76e48bd70fff)
 
 Now Create Admin User:
 
-Alright, let’s get Docker set up on our EC2 instance. First, we’ll install Docker by running this command:
+![image](https://github.com/user-attachments/assets/ca71d7c0-9555-4a4c-82d1-b3bb06551b75)
+
+Now, let’s get Docker set up on our EC2 instance. First, we’ll install Docker by running this command:
+
+```
 sudo apt install docker.io -y
+```
+
 This will ensure we have Docker ready to go. Next up, we need to tweak some permissions. Run this command:
 
+```
 sudo chmod 666 /var/run/docker.sock
-This will make it easier for us to interact with Docker without needing root access every time.
+```
 
-And that’s it! Docker should be good to go on our EC2 instance now.”
+This will make it easier for us to interact with Docker without needing root access every time. The ```docker.sock``` file is a Unix domain socket used by Docker to communicate with the Docker daemon (the background service that manages Docker containers). When you run Docker commands, they are sent through this socket to the Docker daemon, which then processes them.
 
-Step — 7
+And that’s it! Docker should be good to go on our EC2 instance now.
+
+### Step — 7
+
 - Now we need to install some plugins to do that go to the Jenkins Dashboard.
+  
 Open your jenkins dashboard
+
 Go to Manage Jenkins > Manage Plugins.
+
 Search for and Select Plugins:
-Docker
 
-Docker Pipeline
-
-Kubernetes
-
-Kubernetes CLI
+* Docker
+* Docker Pipeline
+* Kubernetes
+* Kubernetes CLI
 
 Install Selected Plugins.
+
 Restart Jenkins to apply changes.
 
--> Now let’s get to Jenkins tools section and setup the Docker:
+![image](https://github.com/user-attachments/assets/f985f743-3dbc-4f2d-8769-c27080aafb1a)
+
+Now let’s get to Jenkins tools section and setup the Docker:
+
 Manage Jenkins -> Tools
 
+![image](https://github.com/user-attachments/assets/ec157f0b-c852-4ff8-ab7a-c98baec7e4c8)
+
 Find Docker Installation:
+
 Under Docker installations, click “Add Docker” and give it a name” Docker”
 
 Select “Install automatically” and choose “Download from docker.com”.
@@ -368,125 +436,178 @@ Leave the “Version” field as “latest” to get the newest stable version o
 
 Click “Save” to add this Docker installation.
 
-Apply the Changes:
+Apply the Changes.
+
+![image](https://github.com/user-attachments/assets/76005634-cdd6-4b01-a235-baf55bdb1df9)
 
 
-Step — 8
+### Step — 8
+
 Now, let’s add Docker Hub credentials to Jenkins. Make sure the credential name matches the one specified in the GitHub repository.
 
 
 Now we need to add “credentials” in the Jenkins that interact with Git source code.
-Login to Jenkins dashboard.
-Navigate to “Manage Jenkins” -> “Credentials” -> “Global credentials (unrestricted)”.
+
+* Login to Jenkins dashboard.
+
+* Navigate to “Manage Jenkins” -> “Credentials” -> “Global credentials (unrestricted)”.
 Click “Add Credentials” and choose “Username with password”.
-Add Credential. For the username, enter ‘raj’ and provide the password.
-Then add the ID name, Ensure the ID matches the one in the GitHub repository (Docker-cred).
+
+* Add Credential. For the username, enter ‘<docker hub_username>’ and provide the password.
+
+* Then add the ID name, Ensure the ID matches the one in the GitHub repository (Docker-cred).
+
+![image](https://github.com/user-attachments/assets/632931c6-32f5-4120-9ea0-4604096d284a)
+
 Now we need to add another credential to Jenkins’ global credentials. This time it’s for Git.
+
 1. Generate GitHub Personal Access Token:
 
-Log in to your GitHub account.
-Navigate to Settings -> Developer settings -> Personal access tokens.
-Click on Generate new token.
-Grant necessary access permissions for your Jenkins jobs (e.g., repo, admin:repo_hook).
-Generate the token and copy it securely (you won’t be able to see it again after this step).
+* Log in to your GitHub account.
+* Navigate to Settings -> Developer settings -> Personal access tokens.
+* Click on Generate new token.
+* Grant necessary access permissions for your Jenkins jobs (e.g., repo, admin:repo_hook).
+* Generate the token and copy it securely (you won’t be able to see it again after this step).
+
 2. Add Credentials in Jenkins:
 
-Open your Jenkins dashboard and log in with admin credentials.
-Navigate to Manage Jenkins -> Credentials -> System -> Global credentials (unrestricted).
-Click on Add Credentials.
-In the Secret field, paste the copied GitHub personal access token.
-Enter your GitHub username (Exp — bindheyashrita)
-In the ID and Description fields, enter a descriptive name (e.g., “git-cred”). This helps you identify these credentials later.
-Click OK to save the credentials.
+* Open your Jenkins dashboard and log in with admin credentials.
+* Navigate to Manage Jenkins -> Credentials -> System -> Global credentials (unrestricted).
+* Click on Add Credentials.
+* In the Secret field, paste the copied GitHub personal access token.
+* Enter your GitHub username.
+* In the ID and Description fields, enter a descriptive name (e.g., “git-cred”). This helps you identify these credentials later.
+* Click OK to save the credentials.
 
-Step — 9
-Now let's add a WebHook Plugin
+![image](https://github.com/user-attachments/assets/d4456585-79bf-48d4-9f1c-1b921f841eb0)
+
+
+### Step — 9
+
+Now let's add a WebHook Plugin.
+
 Navigate to Jenkins dashboard > Manage Jenkins > Plugins > Available Plugins. Search for ‘Multibranch Scan Webhook Trigger’, select it, and install.
 
+![image](https://github.com/user-attachments/assets/d19c1c38-8898-4620-8c34-f6734a7cf750)
 
+![image](https://github.com/user-attachments/assets/6bc22ed2-0ceb-4968-aa65-afb719aca9b2)
 
 Now let’s create a Multibranch Pipeline in Jenkins, we will following these steps:
 
-Navigate to Jenkins Dashboard:
+1. Navigate to Jenkins Dashboard:
+
 2. Create New Item:
 
-Click on the ‘+’ icon and select ‘New Item’.
+* Click on the ‘+’ icon and select ‘New Item’.
+
 3. Name and Select Pipeline Type:
 
-Enter the name as “MicroService E-Commerce”.
-Choose ‘Multibranch Pipeline’ as the project type.
+* Enter the name as “MicroService E-Commerce”.
+* Choose ‘Multibranch Pipeline’ as the project type.
+
 4. Configure Branch Sources:
 
-In the Branch Sources section, click ‘Add source’ and select ‘git’.
-Specify the Git repository URL containing the code. (https://github.com/bindheyashrita/11-microservice.git)
-Select ‘git-cred’ as the credential for accessing the Git repository.
+* In the Branch Sources section, click ‘Add source’ and select ‘git’.
+* Specify the Git repository URL containing the code. (https://github.com/RavDas/CICD-Pipeline-DevOps-Project-with-Microservices)
+* Select ‘git-cred’ as the credential for accessing the Git repository.
+  
 5. Build Configuration (Jenkinsfile):
 
+* In the “Script Path” field, leave the default value “(none)” as Jenkins will automatically search for a file named “Jenkinsfile” in the Git repository root directory. This file contains the pipeline code for building and deploying your application.
 
-In the “Script Path” field, leave the default value “(none)” as Jenkins will automatically search for a file named “Jenkinsfile” in the Git repository root directory. This file contains the pipeline code for building and deploying your application.
+![image](https://github.com/user-attachments/assets/e4e457a3-04fb-4a13-abc6-64bc89dd4ca9)
+
 6. Scan Multibranch Pipeline Triggers:
 
-Check the box next to “Scan Multibranch Pipeline Triggers.”
-Select “GitHub webhooks” as the trigger type.
-In the “Trigger token” field, enter a unique string (e.g., “raj”). This token will be used in the webhook URL to identify authorized triggers.
+* Check the box next to “Scan Multibranch Pipeline Triggers.”
+* Select “GitHub webhooks” as the trigger type.
+* In the “Trigger token” field, enter a unique string (e.g., “ravdas”). This token will be used in the webhook URL to identify authorized triggers.
+  
 7. Webhook URL:
 
 Click the question mark next to “Trigger phrase” for guidance on configuring the webhook URL in your Git repository settings. You’ll need to replace TOKENHERE with the trigger token you entered earlier in the "Trigger token" field. The complete webhook URL should look something like this:
 
-JENKINS_URL/multibranch-webhook-trigger/invoke?token=TOKENHERE
+```
+<JENKINS_URL>/multibranch-webhook-trigger/invoke?token=<TOKENHERE>
+```
+
 Note: Replace JENKINS_URL with the actual URL of your Jenkins instance (e.g., http://your-jenkins-server:8080).
 
 8. Apply Configuration:
 
-Click the Apply button to save the multibranch pipeline configuration.
-Step — 10
+* Click the Apply button to save the multibranch pipeline configuration.
+
+
+### Step — 10
+
 Setting up GitHub Webhook for Jenkins Integration
+
 To set up a GitHub webhook for Jenkins integration, follow these steps:
 
-Navigate to GitHub Settings:
-Go to your GitHub repository settings.
+1. Navigate to GitHub Settings:
+
+* Go to your GitHub repository settings.
+  
 2. Access Webhooks:
 
-Select the ‘Webhooks’ option from the settings menu.
+* Select the ‘Webhooks’ option from the settings menu.
+
 3. Add Webhook:
 
-Click on ‘Add webhook’ to create a new webhook.
-Configure Payload URL:
-Enter the Jenkins webhook URL in the ‘Payload URL’ field.
-Replace ‘JENKINS_URL’ with your Jenkins server URL.
-Replace ‘TOKENHERE’ with the generated token.
-Example: JENKINS_URL/multibranch-webhook-trigger/invoke?token=TOKENHERE
+* Click on ‘Add webhook’ to create a new webhook.
+* Configure Payload URL:
+* Enter the Jenkins webhook URL in the ‘Payload URL’ field.
+* Replace ‘JENKINS_URL’ with your Jenkins server URL.
+* Replace ‘TOKENHERE’ with the generated token.
+
+- Example: JENKINS_URL/multibranch-webhook-trigger/invoke?token=TOKENHERE
+  
 4. Set Content Type:
 
-Choose ‘application/json’ as the content type.
+* Choose ‘application/json’ as the content type.
+
 5. Select Events:
 
-Choose ‘Just the push event’ to trigger the webhook only when code is pushed.
+* Choose ‘Just the push event’ to trigger the webhook only when code is pushed.
+
+![image](https://github.com/user-attachments/assets/9d2f55d5-7813-4f6b-9e0d-45f224d17d4d)
 
 6. Activate Webhook:
 
-Ensure the webhook is active by checking the ‘Active’ option.
+* Ensure the webhook is active by checking the ‘Active’ option.
+
 7. Add Webhook:
 
-Click ‘Add webhook’ to save the configuration.
-Now that our GitHub triggers the pipeline, we have a total of 11 pipelines. Each pipeline will build the Docker image for its corresponding microservice and push it to the Docker Hub repository
+* Click ‘Add webhook’ to save the configuration.
 
+Now that our GitHub triggers the pipeline, we have a total of 11 pipelines. Each pipeline will build the Docker image for its corresponding microservice and push it to the Docker Hub repository.
+
+![image](https://github.com/user-attachments/assets/70be845d-b801-43ca-bd78-d78982de5f86)
 
 Now that the CI part is complete, we transition to the CD phase. Here, we’ll create a service account, assign a dedicated role to it, and then carry out the deployment using this service account.
 
-Step — 11
+
+### Step — 11
 
 Now we are creating a Kubernetes Service Account for Jenkins Deployments
 
 On your EC2 instance, create a file named svc.yml using the command:
-vi svc.yml
+
+```vi svc.yml
+```
+
 Paste the following code into the file:
+
+```
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: jenkins
   namespace: webapps
-Save the file by pressing Esc, then typing :wq, and finally pressing Enter.
+```
+
+Save the file by pressing Esc, then typing ```:wq```, and finally pressing Enter.
+
 Create Namespace:
 
 Execute the command to create the namespace:
