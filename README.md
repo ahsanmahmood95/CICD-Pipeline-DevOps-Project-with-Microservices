@@ -519,7 +519,7 @@ Now let’s create a Multibranch Pipeline in Jenkins, we will following these st
 
 6. Scan Multibranch Pipeline Triggers:
 
-* Check the box next to “Scan Multibranch Pipeline Triggers.”
+* Check the box next to "Scan the webhook" in Scan Multibranch Pipeline Triggers.
 * Select “GitHub webhooks” as the trigger type.
 * In the “Trigger token” field, enter a unique string (e.g., “ravdas”). This token will be used in the webhook URL to identify authorized triggers.
   
@@ -589,8 +589,37 @@ Now that the CI part is complete, we transition to the CD phase. Here, we’ll c
 
 ### Step — 11
 
-Now we are creating a Kubernetes Service Account for Jenkins Deployments
+1. Create Namespace:
 
+Execute the command to create the namespace:
+
+```
+kubectl create namespace webapps
+```
+
+Now we are creating a Kubernetes service account, role, and role binding.
+
+a. Service Account
+
+* Purpose: A service account provides an identity for processes that run in a pod.
+* Use Case: When a pod needs to interact with the Kubernetes API, it uses a service account to authenticate and gain access.
+* Benefits: Isolates the permissions for specific workloads and enhances security by limiting access.
+
+b. Role
+
+* Purpose: A role defines a set of permissions within a namespace.
+* Use Case: Specify what actions (like read, write, delete) can be performed on which resources (like pods, services) within a namespace.
+* Benefits: Granular control over resource access, allowing for the principle of least privilege.
+
+c. Role Binding
+
+* Purpose: A role binding grants the permissions defined in a role to a user, group, or service account.
+* Use Case: Bind a specific service account to a role to allow it to perform certain actions within a namespace.
+* Benefits: Ensures that only authorized identities can perform specific actions, enhancing security and access management.
+
+
+2. Create Kubernetes Service Account:
+   
 On your EC2 instance, create a file named svc.yml using the command:
 
 ```vi svc.yml
@@ -608,31 +637,21 @@ metadata:
 
 Save the file by pressing Esc, then typing ```:wq```, and finally pressing Enter.
 
-Create Namespace:
 
-Execute the command to create the namespace:
-kubectl create namespace webapps
-Apply Service Account Configuration:
 Apply the configuration from the svc.yml file:
+
+```
 kubectl apply -f svc.yml
+```
 
-- Now we creating the service account, role, and binding
-Creating Service Account:
+![image](https://github.com/user-attachments/assets/b34f3a54-0e20-42ac-8204-4a74b0553ad6)
 
-Create a file named svc.yml on your EC2 instance and paste the following code:
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: jenkins
-  namespace: webapps
-Create a namespace first
-kubectl create namespace webapps
-Save the file
 
-kubectl apply -f svc.yml
-2. Creating Role:
+3. Creating Role:
 
-Create a file named role.yml and paste the following code:
+Create a file named 'role.yml' and paste the following code:
+
+```
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -669,11 +688,19 @@ rules:
       - serviceaccounts
       - services
     verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+```
+
 Save the file and execute:
+
+```
 kubectl apply -f role.yml
+```
+
 3. Binding Role to Service Account:
 
-Create a file named bind.yml and paste the following code:
+Create a file named 'bind.yml' and paste the following code:
+
+```
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -687,13 +714,19 @@ subjects:
   - namespace: webapps
     kind: ServiceAccount
     name: jenkins
+```
+
 Save the file and execute:
 
+```
 kubectl apply -f bind.yml
+```
+
 Next, Once the role is bound to the service account, the next step is to generate a token for this service account, which will be used for authentication.
 
-we need to create a token for our service account to enable authentication. Let’s create a file named ‘sec.yml’ and add the following code:
+We need to create a token for our service account to enable authentication. Let’s create a file named ‘sec.yml’ and add the following code:
 
+```
 apiVersion: v1
 kind: Secret
 type: kubernetes.io/service-account-token
@@ -701,76 +734,119 @@ metadata:
   name: mysecretname
   annotations:
     kubernetes.io/service-account.name: jenkins
+```
+
 Don’t forget to include the namespace ‘webapps’ when applying this configuration. Once done, execute the command:
 
+```
 kubectl apply -f sec.yml -n webapps
+```
+
 This token will allow our ‘jenkins’ service account to authenticate for deployments.
 
 after binding the role to the service account, the next crucial step is to obtain a token for authentication. We achieve this by executing the following command:
 
+```
 kubectl describe secret mysecretname -n webapps
+```
+
+![image](https://github.com/user-attachments/assets/ade40a21-3c67-47f8-ab28-f6de13d6f3b1)
 
 and copy token so that it will use.
 
-Step — 12
+
+### Step — 12
+
 Next, go back to the Jenkins dashboard. We need to create a CD pipeline. Now, create a dummy pipeline for generating the pipeline syntax of the main branch.
 
-Create CD Pipeline in Jenkins:
-Navigate to Jenkins dashboard and create a new item.
-Name it “Dummy” and select pipeline type.
+1. Create CD Pipeline in Jenkins:
+   
+* Navigate to Jenkins dashboard and create a new item.
 
-In advanced project options, choose pipeline and select script.
-Go to pipeline syntax
+* Name it “Dummy” and select pipeline type.
 
-pipeline syntax → overview -> simple step ->withkubecrenditals: configure kubenetes CLI (kubectl) with multiple credtials
+![image](https://github.com/user-attachments/assets/5faf08e0-21d8-4ce3-a4d0-b4da37b70a48)
+
+* In advanced project options, choose pipeline and select script.
+
+* Go to pipeline syntax
+
+![image](https://github.com/user-attachments/assets/3a8bd70b-3df8-43b9-841b-1cdbef7c138c)
+
+* pipeline syntax → overview -> simple step ->withkubecrenditals: configure kubenetes CLI (kubectl) with multiple credtials
+
+![image](https://github.com/user-attachments/assets/4bcef0eb-3b67-44e3-8bda-80b3dda5c77b)
 
 Credentials -> add -> Jenkins (For generating)
 
+![image](https://github.com/user-attachments/assets/317ee21a-8b5f-442e-98c7-f0ef9d1b5c5d)
+
+![image](https://github.com/user-attachments/assets/7b738946-7de8-41c3-95fb-fa88a2ad2425)
+
+![image](https://github.com/user-attachments/assets/327edcd3-ca71-44fe-adb2-7bfa322de07b)
 
 
+2. Add Credentials:
 
-Add Credentials:
-Navigate to Jenkins Credentials and select ‘Add Credentials’.
-Choose ‘Domain’ as ‘Global credentials unrestricted’.
-Select ‘Kind’ as ‘Secret text’.
-Set ‘Scope’ to ‘Global (Jenkins, nodes, items, all child items, etc.)’.
-In the ‘Secret’ section, paste the token copied from the service account.
-Set ‘ID’ and ‘Description’ as ‘k8-token’.
-Now add
-2. Now in the credential section select → k8-token
+* Navigate to Jenkins Credentials and select ‘Add Credentials’.
+* Choose ‘Domain’ as ‘Global credentials unrestricted’.
+* Select ‘Kind’ as ‘Secret text’.
+* Set ‘Scope’ to ‘Global (Jenkins, nodes, items, all child items, etc.)’.
+* In the ‘Secret’ section, paste the token copied from the service account.
+* Set ‘ID’ and ‘Description’ as ‘k8-token’.
 
+Now in the credential section select → k8-token
 
-now we fill the Kubernetes API endpoint
+![image](https://github.com/user-attachments/assets/4f904886-192f-4171-b9fd-c25c400e68a4)
+
+Next we fill the Kubernetes API endpoint
+
 3. Configure Kubernetes API Endpoint:
 
 Obtain the Kubernetes API endpoint from your EC2 instance > EKS Cluster > EKS1 > Overview.
 
-Now copy the API server endpoint link
+![image](https://github.com/user-attachments/assets/fabb3118-1498-4ac7-87e1-5b59436c707e)
 
-and paste it on Kubernetes API Endpoint
+Now copy the API server endpoint link.
 
+![image](https://github.com/user-attachments/assets/02a57f05-4215-4b2e-b32c-9bff9f230df7)
+
+and paste it on Kubernetes API Endpoint.
+
+![image](https://github.com/user-attachments/assets/16e9dbdd-8746-40e2-944d-ef45f76e1f9a)
 
 Specify ‘clustername’ as ‘EKS-1’ and ‘namespace’ as ‘webapps’.
 
+![image](https://github.com/user-attachments/assets/c945fa3d-1762-4878-8692-4a2ba75a25e8)
+
+
 4. Generate Pipeline Script:
 
-Generate the pipeline script and copy the code.
-Paste the code into the steps section of your pipeline.
+* Generate the pipeline script and copy the code.
+* Paste the code into the steps section of your pipeline.
 
-5. Go to pipeline syntax and paste the code
+5. Go to pipeline script section (Configuration-> Pipeline) and paste the code.
+
+![image](https://github.com/user-attachments/assets/fab4a95f-50bd-49f7-80e1-049c5eef3450)
+
+Now, we put the command to apply deployment. 
+
+``` sh "kubectl apply -f deployment-service.yml"```
+
+'deployment-service.yml' is the name of the file available in the Github repository main branch that is used to apply deployment and services in Kubernetes.
 
 
-Now, we put the command
+![image](https://github.com/user-attachments/assets/a8784d56-8295-4010-b025-ab81559fe9b9)
 
 Next, we’ll add another pipeline script titled “Verify Deployment”.
 
+![image](https://github.com/user-attachments/assets/4982c27a-2517-497e-9a03-2b1081dfd153)
 
-6. Now that both scripts are prepared, here’s the twist: instead of applying them directly, we’ll use them elsewhere. Copy both scripts and navigate to the main microservice directory in the GitHub project’s — main — microservice directory. Create a new file named ‘Jenkinsfile’ and paste the copied script into it.
+6. Now that both scripts are prepared, here’s the twist: instead of applying them directly, we’ll use them elsewhere. Copy the scripts in the Dummy project pipeline script and navigate to the main microservice directory in the GitHub project’s — main — microservice directory. Create a new file named ‘Jenkinsfile’ and paste the copied script into it.
 
+![image](https://github.com/user-attachments/assets/3734d7e0-7a12-4794-951a-8e76f2a97c64)
 
-Okay, here we need to make changes in the code
-- removing the sleeping mode
-- adding svc
+```
 pipeline {
     agent any
 
@@ -793,23 +869,48 @@ pipeline {
         }
     }
 }
+```
+
+![image](https://github.com/user-attachments/assets/974b4257-8d2b-4a8c-8a16-1ee93311b39d)
 
 Now commit the changes
 
-Let’s tidy up by removing the dummy pipeline we created earlier
+![image](https://github.com/user-attachments/assets/864037b1-3512-415a-b3cb-69c99689e0b0)
+
+LRemove the 'Dummy' pipeline we created earlier.
+
+![image](https://github.com/user-attachments/assets/7b46c981-3a8e-4152-a577-925a25f8ebb3)
 
 
 Okay, let’s check whether our pipeline was created or not, which we previously committed changes on GitHub?
 
+![image](https://github.com/user-attachments/assets/187950b1-f5a0-4c26-a400-2d5cc090937d)
 
 Go to Jenkins -> Dashboard -> Microservice E-Commerce -> main (where we committed changes in GitHub).
 
+![image](https://github.com/user-attachments/assets/7d046654-b16a-4320-81a7-184c01d890b9)
 
-Now its deploying
+Now its deploying.
 
+![image](https://github.com/user-attachments/assets/62e16462-e8c0-41c9-892f-ee1b1c8960c8)
+
+![image](https://github.com/user-attachments/assets/2eec1656-b06e-4874-826e-323393fab1ca)
 
 Now copy the ID and paste it into the browser to see the site.
 
-Final site
+![image](https://github.com/user-attachments/assets/f682aba2-d5d6-4df4-b2db-564bee39f8f6)
 
+
+### Final deployed site
+
+![image](https://github.com/user-attachments/assets/c1516a21-e5c2-4734-b27b-c98be56e5b23)
+
+![image](https://github.com/user-attachments/assets/e5f3897a-e5c8-44ba-91d1-ab751359f50e)
+
+
+Finally delete the EKS cluster after completing your work.
+
+```
+eksctl delete cluster --name EKS-1 --region ap-south-1
+```
 
