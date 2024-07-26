@@ -1,8 +1,9 @@
 ## CICD Pipeline DevOps Project with Microservices
 
-Microservices Architecture: If the project involved deploying microservices, I might have gained a deeper understanding of this architectural style and its benefits.
-Kubernetes Concepts: Working with EKS likely involved exposure to core Kubernetes concepts like deployments, pods, namespaces, and services.
-Now Let’s begin
+Microservices is an architectural style that breaks an application into small, autonomous services, each handling a specific business function. Key benefits include independent scaling, fault isolation, and the ability to use diverse technologies. They support continuous delivery and align well with agile and DevOps practices. However, they introduce complexities such as data consistency, network latency, and testing challenges.
+
+We will deploy a project with microservices using EC2 instances, EKS cluster, Jenkins -Multi branch pipeline.
+
 
 ### Step -1
 
