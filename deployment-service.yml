@@ -200,7 +200,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: server
-          image: ahsanmahmood95/frontend:latest
+          image: adijaiswal/frontend:latest
           ports:
           - containerPort: 8080
           readinessProbe:
@@ -297,7 +297,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: ahsanmahmood95/paymentservice:latest
+        image: adijaiswal/paymentservice:latest
         ports:
         - containerPort: 50051
         env:
